@@ -20,5 +20,8 @@ last_reviewed: 2026-03-12
 ## Codex Sessions
 - [active] codex_resume_uuid: when sharing a resumable Codex session, use the conversation/session UUID, not the temporary `exec_command` or `write_stdin` session id | trigger=user asks for a Codex session id for `codex resume` | source=mistake | first_learned=2026-03-12 | last_updated=2026-03-12
 
+## Recovery Snapshot
+- [active] snapshot_scope: keep `/home/opc/Jarvis` as a sanitized root-style recovery snapshot containing only durable files needed to recreate the Codex environment; exclude secrets, auth state, caches, editor/tool state, `mcserver`, temp archives, and packaging directories | trigger=updating the persistent recovery repo | source=mistake | first_learned=2026-03-12 | last_updated=2026-03-12
+
 ## Notes
 - Keep this file focused on reusable lessons, not user profile memory.
