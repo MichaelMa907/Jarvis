@@ -1,0 +1,23 @@
+model = "gpt-5.4"
+model_reasoning_effort = "high"
+[projects."/home/opc/codex-agent"]
+trust_level = "trusted"
+
+[projects."/home/opc"]
+trust_level = "trusted"
+
+[notice]
+hide_full_access_warning = true
+
+[notice.model_migrations]
+"gpt-5.3-codex" = "gpt-5.4"
+
+[mcp_servers.zapier]
+url = "https://mcp.zapier.com/api/v1/connect"
+bearer_token_env_var = "ZAPIER_MCP_BEARER_TOKEN"
+startup_timeout_sec = 20.0
+tool_timeout_sec = 120.0
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["@playwright/mcp@latest"]

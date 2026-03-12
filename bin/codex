@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+REAL_CODEX_BIN="${REAL_CODEX_BIN:-/usr/bin/codex}"
+TOKEN_FILE="${CODEX_ZAPIER_TOKEN_FILE:-$HOME/.config/codex/secrets/zapier_mcp_bearer_token}"
+ZAPIER_MCP_URL="${CODEX_ZAPIER_MCP_URL:-https://mcp.zapier.com/api/v1/connect}"
+VERIFY_TIMEOUT_SEC="${CODEX_ZAPIER_VERIFY_TIMEOUT_SEC:-8}"
+SHELL_ENV_EXCLUDE_OVERRIDE='shell_environment_policy.exclude=["ZAPIER_MCP_BEARER_TOKEN"]'
+
+should_skip_zapier_verify() {
+    if [ "$#" -eq 0 ]; then
+        return 1
+    fi
+
+    case "$1" in
+        -h|--help|-V|--version|help|completion|login|logout|features)
+            return 0
+            ;;
+        mcp)
+            case "${2:-}" in
+                ""|help|list|get|add|remove|login|logout)
+                    return 0
+                    ;;
+            esac
+            return 1
+            ;;
+    esac
+
+    return 1
+}
+
+load_zapier_token() {
+    if [ ! -r "$TOKEN_FILE" ]; then
+        printf 'codex wrapper: missing Zapier token file at %s\n' "$TOKEN_FILE" >&2
+        exit 1
+    fi
+
+    local token
+    token="$(tr -d '\r\n' < "$TOKEN_FILE")"
+    if [ -z "$token" ]; then
+        printf 'codex wrapper: Zapier token file is empty\n' >&2
+        exit 1
+    fi
+
+    export ZAPIER_MCP_BEARER_TOKEN="$token"
+}
+
+verify_zapier_connection() {
+    local headers
+    local curl_stderr
+    headers="$(mktemp)"
+    curl_stderr="$(mktemp)"
+    trap 'rm -f "$headers" "$curl_stderr"' RETURN
+
+    if ! curl --http1.1 --silent --show-error --location --max-time "$VERIFY_TIMEOUT_SEC" \
+        -D "$headers" \
+        -o /dev/null \
+        -H "Authorization: Bearer $ZAPIER_MCP_BEARER_TOKEN" \
+        -H "Accept: application/json, text/event-stream" \
+        "$ZAPIER_MCP_URL" \
+        2>"$curl_stderr"; then
+        local status_code
+        status_code="$(
+            awk '
+                match($0, /^HTTP\/[0-9.]+ ([0-9]{3})/, m) { code = m[1] }
+                END { if (code != "") print code }
+            ' "$headers"
+        )"
+        if [ "${status_code:-}" != "200" ]; then
+            if [ -s "$curl_stderr" ]; then
+                cat "$curl_stderr" >&2
+            fi
+            printf 'codex wrapper: Zapier MCP verification failed\n' >&2
+            exit 1
+        fi
+    fi
+}
+
+if should_skip_zapier_verify "$@"; then
+    exec "$REAL_CODEX_BIN" -c "$SHELL_ENV_EXCLUDE_OVERRIDE" "$@"
+fi
+
+load_zapier_token
+
+if [ "${CODEX_SKIP_ZAPIER_VERIFY:-0}" != "1" ]; then
+    verify_zapier_connection
+fi
+
+exec "$REAL_CODEX_BIN" -c "$SHELL_ENV_EXCLUDE_OVERRIDE" "$@"
