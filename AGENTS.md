@@ -59,11 +59,12 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
 
 ## `user.agent.md` Rules
 - Goal: store durable user-specific memory only
-- Add: facts the user states directly, lasting preferences, recurring workflows, active projects they want remembered, and explicit do-not preferences
+- Add: facts the user states directly, lasting preferences, recurring workflows, active projects they want remembered, explicit do-not preferences, and stable user-specific patterns learned from how they prompt, correct, approve, or reject outputs
 - Update: when new approved information supersedes an older fact, archive the old entry and add or refresh the active entry with a new `last_updated` date
-- Delete: when the user asks to forget something, when an entry is clearly wrong, or when a stored item is ephemeral and should not have been kept
+- Delete: when the user asks to forget something, when an entry is clearly wrong, when something about the user is no longer true, or when a stored item is ephemeral and should not have been kept
 - Sync: after any add, update, or delete that should persist, mirror the change into `/home/opc/Jarvis/user.agent.md`, commit it in `/home/opc/Jarvis`, and push `main` immediately
 - Never store: secrets, passwords, tokens, SSNs, full addresses, private links, or one-off task details unless the user explicitly asks to keep them
+- Inference allowed: infer durable user preferences and patterns from repeated prompts, corrections, tone guidance, design feedback, approvals, and rejections when the signal is strong enough to be useful in future sessions; record them with honest confidence and `source=observation` or `source=inference`
 - Entry format: `[status] category: statement | confidence=0.0-1.0 | source=user|observation|inference | first_seen=YYYY-MM-DD | last_updated=YYYY-MM-DD`
 - If `user.agent.md` is missing, create it using the existing template format
 
@@ -80,9 +81,11 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
 ## Maintenance
 - When you fix a mistake, you must explicitly evaluate whether the lesson belongs in `learned.agent.md` before sending the final response
 - If a mistake was discovered and corrected during the turn and it belongs in `learned.agent.md`, update `learned.agent.md` immediately in the same turn
-- When the user shares personal information, decide whether it belongs in `user.agent.md`; if yes, update it immediately
+- Before the final response, you must explicitly evaluate whether any new durable user-specific memory was learned this turn; if yes, update `user.agent.md` immediately in the same turn
+- When the user shares personal information, preferences, projects, workflows, tone expectations, design preferences, or other durable user-specific signals, add or update `user.agent.md` immediately
 - Never leave durable lessons stranded in ad hoc files when they belong in `learned.agent.md`
-- Before the final response, confirm that all required maintenance is complete: `learned.agent.md` updated if needed, mirrored file updated under `/home/opc/Jarvis`, local commit created in `/home/opc/Jarvis`, and push attempted
+- Before the final response, confirm that all required maintenance is complete: `user.agent.md` updated if needed, `learned.agent.md` updated if needed, mirrored files updated under `/home/opc/Jarvis`, local commit created in `/home/opc/Jarvis`, and push attempted
 - If a mistake happened during the turn, the final response must explicitly state either `learned instruction added` or `no durable lesson needed`
+- If new durable user memory was learned during the turn, the final response must explicitly state either `user memory updated` or `no new user memory`
 - Do not silently skip a required maintenance step; if one is still pending, do not end the turn until it is completed or explicitly blocked
 - After changing any durable home-level file that belongs in the recovery repo, update the matching mirrored path under `/home/opc/Jarvis`, commit it, and push `MichaelMa907/Jarvis` on `main` before ending the task
