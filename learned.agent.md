@@ -1,10 +1,11 @@
 # Learned Instructions
 created: 2026-03-12
-last_reviewed: 2026-03-12
+last_reviewed: 2026-03-13
 
 ## MCP And Tools
 - [active] mcp_discovery: check available MCP tools before refusing a task that seems impossible, especially Zapier for connected user apps | trigger=task seems unsupported or impossible | source=mistake | first_learned=2026-03-11 | last_updated=2026-03-12
 - [active] browser_viewing: use the Playwright MCP for tasks that require browser viewing or interaction | trigger=web pages need to be viewed or manipulated | source=convention | first_learned=2026-03-12 | last_updated=2026-03-12
+- [active] notion_database_items: when creating or updating rows in a Notion database/data source such as `Todo List`, prefer `notion_create_data_source_item` and `notion_update_data_source_item` over raw `notion_api_request_beta` page creation; verify the result by checking the item's `parent_type` is `data_source_id` or by confirming it appears in the rendered view | trigger=adding or editing Notion database rows via Zapier | source=mistake | first_learned=2026-03-13 | last_updated=2026-03-13
 
 ## Outlook
 - [active] outlook_standard_actions: prefer standard Zapier Outlook actions before `microsoft_outlook_api_request_beta` when the standard action already supports the operation | trigger=Outlook calendar tasks via Zapier | source=mistake | first_learned=2026-03-11 | last_updated=2026-03-12
