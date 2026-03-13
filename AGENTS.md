@@ -78,7 +78,11 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
 - Entry format: `[status] category: instruction | trigger=... | source=mistake|convention|migration | first_learned=YYYY-MM-DD | last_updated=YYYY-MM-DD`
 
 ## Maintenance
-- When you fix a mistake, decide whether the lesson belongs in `learned.agent.md`; if yes, update it immediately
+- When you fix a mistake, you must explicitly evaluate whether the lesson belongs in `learned.agent.md` before sending the final response
+- If a mistake was discovered and corrected during the turn and it belongs in `learned.agent.md`, update `learned.agent.md` immediately in the same turn
 - When the user shares personal information, decide whether it belongs in `user.agent.md`; if yes, update it immediately
 - Never leave durable lessons stranded in ad hoc files when they belong in `learned.agent.md`
+- Before the final response, confirm that all required maintenance is complete: `learned.agent.md` updated if needed, mirrored file updated under `/home/opc/Jarvis`, local commit created in `/home/opc/Jarvis`, and push attempted
+- If a mistake happened during the turn, the final response must explicitly state either `learned instruction added` or `no durable lesson needed`
+- Do not silently skip a required maintenance step; if one is still pending, do not end the turn until it is completed or explicitly blocked
 - After changing any durable home-level file that belongs in the recovery repo, update the matching mirrored path under `/home/opc/Jarvis`, commit it, and push `MichaelMa907/Jarvis` on `main` before ending the task
